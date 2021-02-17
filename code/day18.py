@@ -1,28 +1,44 @@
-def same_chars(str1: str, str2: str) -> bool:
-    return set(str1) == set(str2)
+import regex
 
 
-def same_chars2(str1: str, str2: str) -> bool:
-    for i in str1:
-        if i not in str2:
-            return False
-    for i in str2:
-        if i not in str1:
-            return False
-    return True
+def simplify(expr: str, func):
+    pattern = ".*?(\([^\(\)]+\))"
+    while match := regex.match(pattern, expr):
+        expr = expr.replace(match[1], func(match[1][1:-1]))
+    return func(expr)
 
 
-print(same_chars("horse", "shoe"))
-print(same_chars("horse", "shore"))
-print(same_chars("twicetwice", "twice"))
-print(same_chars2("horse", "shoe"))
-print(same_chars2("horse", "shore"))
-print(same_chars2("twicetwice", "twice"))
+def evaluate1(expr: str):
+    pattern = "(\d+ [\*\+] \d+)"
+    while match := regex.match(pattern, expr):
+        expr = expr.replace(match[1], str(eval(match[1])))
+    return expr
 
 
-def invert_dict(d: dict) -> dict:
-    return {val: key for key, val in d.items()}
+def evaluate2(expr: str):
+    pattern1 = ".*?(\d+ \+ \d+)"
+    while match := regex.match(pattern1, expr):
+        expr = expr.replace(match[1], str(eval(match[1])))
+    pattern2 = "(\d+ \* \d+)"
+    while match := regex.match(pattern2, expr):
+        expr = expr.replace(match[1], str(eval(match[1])))
+    return expr
 
 
-di = {3: 5, 15: 7, 4: 64}
-print(invert_dict(di))
+def part1():
+    acc = 0
+    with open("../input/day18.txt") as f:
+        while line := f.readline():
+            acc += int(simplify(line, evaluate1))
+    return acc
+
+
+def part2():
+    acc = 0
+    with open("../input/day18.txt") as f:
+        while line := f.readline():
+            acc += int(simplify(line, evaluate2))
+    return acc
+
+
+print(part1(), part2())
